@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>公主的魔法花园</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #fff5f5;
+            font-family: 'Comic Sans MS', '幼圆', cursive;
+            position: relative;
+        }
+
+        .heart {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            transform: rotate(-45deg);
+            animation: float 3s linear infinite;
+            pointer-events: none;
+        }
+
+        .heart:before,
+        .heart:after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+        }
+
+        .heart:before {
+            top: -12.5px;
+            left: 0;
+        }
+
+        .heart:after {
+            top: 0;
+            right: -12.5px;
+        }
+
+        .message {
+            position: absolute;
+            font-size: clamp(16px, 5vw, 28px);
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: fadeInOut 2s ease-in-out;
+            pointer-events: none;
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+        }
+
+        .star {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: gold;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(-45deg); }
+            50% { transform: translateY(-20px) rotate(-45deg); }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.2); }
+        }
+
+        @keyframes twinkle {
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* 新增加载完成提示 */
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #ff6b6b;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">点击屏幕唤醒魔法 ✨</div>
+    
+    <script>
+        // 确保页面加载完成
+        window.onload = () => {
+            document.getElementById('loading').style.display = 'block';
+        };
+
+        // 统一事件处理
+        const createEffect = (clientX, clientY) => {
+            // 创建爱心
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = clientX + 'px';
+            heart.style.top = clientY + 'px';
+            heart.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+            
+            // 创建文字
+            const text = document.createElement('div');
+            text.className = 'message';
+            text.textContent = messages[Math.floor(Math.random()*messages.length)];
+            text.style.left = clientX + 'px';
+            text.style.top = clientY + 'px';
+            
+            // 创建星星
+            for(let i=0; i<5; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = (clientX + Math.random()*100 -50) + 'px';
+                star.style.top = (clientY + Math.random()*100 -50) + 'px';
+                star.style.animationDelay = Math.random() + 's';
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), 2000);
+            }
+
+            document.body.appendChild(heart);
+            document.body.appendChild(text);
+            
+            setTimeout(() => {
+                heart.remove();
+                text.remove();
+            }, 3000);
+        };
+
+        // 消息数组
+        const messages = [
+            "公主让世界变得更美好💖",
+            "今天也要闪闪发光✨",
+            "公主笑起来像春天的花🌸",
+            "遇见公主真幸运🍀",
+            "公主值得所有美好🎁",
+            "公主要做最可爱的自己🎀",
+            "公主今天也要开心鸭🌈",
+            "公主要身体健康呀💖"
+        ];
+
+        // 事件监听（兼容移动端）
+        document.addEventListener('click', (e) => {
+            document.getElementById('loading').style.display = 'none';
+            createEffect(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            document.getElementById('loading').style.display = 'none';
+            createEffect(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        // 自动飘落爱心
+        setInterval(() => {
+            const x = Math.random() * window.innerWidth;
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = x + 'px';
+            heart.style.top = '-50px';
+            heart.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }, 3000);
+    </script>
+</body>
+</html>
