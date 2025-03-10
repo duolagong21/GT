@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>公主殿下梦幻乐园 ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            font-family: 'Comic Sans MS', '华康少女文字', cursive;
+            position: relative;
+        }
+
+        /* 五角星样式 */
+        .star {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            background: #fff;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            filter: drop-shadow(0 0 3px rgba(255,215,0,0.5));
+            animation: twinkle 1.5s ease-in-out infinite;
+        }
+
+        /* 文字特效 */
+        .magic-text {
+            position: absolute;
+            color: #ff69b4;
+            text-shadow: 0 2px 4px rgba(255,105,180,0.3);
+            white-space: nowrap;
+            animation: textScale 1.5s ease-out forwards;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        /* 烟花粒子 */
+        .firework-particle {
+            width: 8px;
+            height: 8px;
+            position: absolute;
+            border-radius: 50%;
+            animation: fireworkLaunch 1.2s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+        }
+
+        @keyframes textScale {
+            0% { opacity: 0; transform: translate(-50%,-50%) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
+        }
+
+        @keyframes fireworkLaunch {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            40% { transform: translateY(-60vh) scale(0.8); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.9); }
+        }
+
+        #status {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 1.2em;
+            text-shadow: 0 0 8px rgba(255,107,107,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="status">✨ 轻触唤醒公主魔法 ✨</div>
+
+    <script>
+        // 特效数据库
+        const clickMessages = [
+            "♥ 公主殿下今日美貌全开！",
+            "🎀 公主的可爱能量+100%",
+            "🌸 公主是草莓味的甜心宝贝",
+            "💮 检测到公主的治愈微笑",
+            "✨ 公主的眼睛里有小星星",
+            "🎇 公主殿下今日份可爱已签收",
+            "🍰 公主想吃提拉米苏吗"
+        ];
+
+        // 烟花颜色库
+        const fireColors = ['#ff4500', '#ffd700', '#ff69b4', '#7fff00'];
+
+        // 创建元素通用方法
+        const createElement = (type, x, y, content) => {
+            const el = document.createElement('div');
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            
+            if(content) {
+                el.className = 'magic-text';
+                el.innerHTML = content;
+                el.style.fontSize = Math.min(window.innerWidth/15, 24) + 'px';
+            } else if(type === 'star') {
+                el.className = 'star';
+                el.style.width = rand(15,25) + 'px';
+                el.style.height = el.style.width;
+            } else {
+                el.className = 'firework-particle';
+                el.style.background = fireColors[rand(0,3)];
+            }
+            
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+            return el;
+        };
+
+        // ========== 功能一优化：点击特效 ==========
+        const createClickMagic = (x, y) => {
+            // 主文字居中
+            const text = createElement('text', x, y, 
+                clickMessages[rand(0, clickMessages.length-1)]
+            );
+            
+            // 爱心环绕
+            for(let i=0; i<3; i++){
+                const angle = (i*120 + rand(-15,15)) * Math.PI/180;
+                const dx = Math.cos(angle) * 50;
+                const dy = Math.sin(angle) * 50;
+                createElement('text', x+dx, y+dy, '💖');
+            }
+        };
+
+        // ========== 功能二优化：烟花特效 ==========
+        const createFireworks = () => {
+            const startX = window.innerWidth/2;
+            const startY = window.innerHeight - 50;
+            
+            // 发射轨迹
+            for(let i=0; i<8; i++){
+                const particle = createElement('fire', startX, startY);
+                particle.style.setProperty('--tx', rand(-20,20)+'px');
+                particle.style.setProperty('--ty', -rand(50,80)+'vh');
+                particle.style.animationDelay = i*0.1 + 's';
+            }
+
+            // 爆炸效果
+            setTimeout(() => {
+                const text = createElement('text', startX, window.innerHeight/2, 
+                    '🎉 公主殿下宇宙最最最棒！ 🎉'
+                );
+                text.style.fontSize = Math.min(window.innerWidth/10, 32) + 'px';
+
+                for(let i=0; i<30; i++){
+                    const p = createElement('fire', startX, window.innerHeight/2);
+                    p.style.setProperty('--tx', rand(-200,200)+'px');
+                    p.style.setProperty('--ty', rand(-200,200)+'px');
+                }
+            }, 600);
+        };
+
+        // ========== 功能三优化：星河特效 ==========
+        const createGalaxy = () => {
+            // 安康文字
+            const text = createElement('text', 
+                window.innerWidth/2,
+                window.innerHeight/2,
+                '🌠 愿公主殿下永世安康 🌠'
+            );
+            text.style.fontSize = Math.min(window.innerWidth/12, 28) + 'px';
+
+            // 五角星雨
+            for(let i=0; i<50; i++){
+                const star = createElement('star', 
+                    rand(0, window.innerWidth),
+                    rand(-100, window.innerHeight)
+                );
+                star.style.animation = `
+                    ${rand(2,4)}s linear ${rand(0,2)}s 1 normal both 
+                    running starFall
+                `;
+            }
+        };
+
+        // ========== 事件控制系统 ==========
+        let pressTimer;
+        const handleStart = (e) => {
+            pressTimer = setTimeout(createFireworks, 2000);
+        };
+
+        const handleEnd = (e) => {
+            clearTimeout(pressTimer);
+            if(e.type === 'click') {
+                const x = e.clientX || e.touches[0].clientX;
+                const y = e.clientY || e.touches[0].clientY;
+                createClickMagic(x, y);
+            }
+        };
+
+        // 摇晃检测
+        let lastShake = 0;
+        window.addEventListener('devicemotion', (e) => {
+            if(!e.accelerationIncludingGravity) return;
+            
+            const acc = Math.abs(e.accelerationIncludingGravity.x)
+                     + Math.abs(e.accelerationIncludingGravity.y)
+                     + Math.abs(e.accelerationIncludingGravity.z);
+            
+            if(acc > 25 && Date.now() - lastShake > 3000){
+                createGalaxy();
+                lastShake = Date.now();
+            }
+        });
+
+        // 初始化事件
+        window.onload = () => {
+            ['mousedown', 'touchstart'].forEach(evt => 
+                document.addEventListener(evt, handleStart));
+            ['mouseup', 'touchend', 'click'].forEach(evt => 
+                document.addEventListener(evt, handleEnd));
+        };
+
+        // 添加星落动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes starFall {
+                0% { transform: translateY(0) rotate(0deg); opacity:1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity:0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 实用工具函数
+        const rand = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+    </script>
+</body>
+</html>
