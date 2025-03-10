@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>公主殿下专属魔法书 ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #2b1055 0%, #7597de 100%);
+            font-family: '华文行楷', cursive;
+            position: relative;
+        }
+
+        /* 通用特效容器 */
+        .magic-effect {
+            position: absolute;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* 点击文字特效 */
+        .princess-text {
+            font-size: 1.8em;
+            color: #ffd700;
+            text-shadow: 0 0 15px #ff69b4;
+            animation: textFloat 3s ease-out forwards;
+            white-space: nowrap;
+        }
+
+        /* 长按烟花特效 */
+        .firework {
+            width: 8px;
+            height: 8px;
+            background: #ff4500;
+            border-radius: 50%;
+            animation: fireworkBurst 1.2s ease-out forwards;
+        }
+
+        /* 星河特效 */
+        .galaxy-star {
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            animation: galaxyTwinkle 3s infinite;
+        }
+
+        @keyframes textFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @keyframes fireworkBurst {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(3); }
+            100% { opacity: 0; transform: scale(0.5) translate(var(--tx), var(--ty)); }
+        }
+
+        @keyframes galaxyTwinkle {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(0.6); }
+        }
+
+        #status {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 1.2em;
+            text-shadow: 0 0 10px #ff69b4;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">👑 轻触屏幕开启公主魔法 👑</div>
+
+    <script>
+        // 特效数据库
+        const clickMessages = [
+            "♥ 公主殿下今日美貌超标啦！🎇",
+            "✨ 公主的微笑是世界的宝藏 💎",
+            "🎀 公主今天想吃草莓蛋糕吗 🍰",
+            "💮 公主的可爱能量充满啦 ⚡",
+            "🌸 公主是银河系最甜的存在 🪐",
+            "🎇 公主的眼睛会发光耶 ✨",
+            "💐 公主的优雅值突破天际 🚀"
+        ];
+
+        // 系统参数
+        let longPressTimer;
+        const SHAKE_THRESHOLD = 15; // 摇晃灵敏度
+        
+        // 创建基础特效元素
+        const createEffect = (type, x, y, content) => {
+            const element = document.createElement('div');
+            element.className = `magic-effect ${type}`;
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            
+            if(content) element.innerHTML = content;
+            
+            document.body.appendChild(element);
+            setTimeout(() => element.remove(), 3000);
+            return element;
+        };
+
+        // ========== 功能一：点击特效 ==========
+        const createClickMagic = (x, y) => {
+            // 文字特效
+            const text = createEffect('princess-text', x, y, 
+                clickMessages[Math.floor(Math.random()*clickMessages.length)]
+            );
+            
+            // 爱心特效
+            for(let i=0; i<3; i++){
+                createEffect('princess-text', x+rand(-30,30), y+rand(-30,30), '💖');
+            }
+            
+            // 烟花粒子
+            for(let i=0; i<5; i++){
+                const fire = createEffect('firework', x, y);
+                fire.style.setProperty('--tx', rand(-100,100)+'px');
+                fire.style.setProperty('--ty', rand(-150,50)+'px');
+                fire.style.background = `hsl(${rand(0,360)}, 70%, 60%)`;
+            }
+        };
+
+        // ========== 功能二：长按特效 ==========
+        const createLongPressMagic = (x, y) => {
+            // 全屏烟花
+            for(let i=0; i<50; i++){
+                const fire = createEffect('firework', rand(0,window.innerWidth), rand(0,window.innerHeight));
+                fire.style.animationDuration = rand(1,2)+'s';
+                fire.style.setProperty('--tx', rand(-200,200)+'px');
+                fire.style.setProperty('--ty', rand(-300,100)+'px');
+            }
+            
+            // 中央大字
+            const text = createEffect('princess-text', x-100, y-50, '🎉 公主殿下宇宙最棒！ 🎉');
+            text.style.fontSize = '2.5em';
+        };
+
+        // ========== 功能三：摇晃特效 ==========
+        const createGalaxyMagic = () => {
+            // 生成星河
+            for(let i=0; i<200; i++){
+                const star = createEffect('galaxy-star', 
+                    rand(0, window.innerWidth),
+                    rand(0, window.innerHeight)
+                );
+                star.style.animationDelay = rand(0,3)+'s';
+            }
+            
+            // 安康文字
+            const text = createEffect('princess-text', 
+                window.innerWidth/2-120, 
+                window.innerHeight/2,
+                '🌌 愿公主殿下永世安康 🌌'
+            );
+            text.style.fontSize = '2em';
+        };
+
+        // ========== 事件控制系统 ==========
+        let lastX = 0, lastY = 0;
+        
+        // 触摸开始
+        const touchStart = (e) => {
+            const pos = getPosition(e);
+            lastX = pos.x;
+            lastY = pos.y;
+            longPressTimer = setTimeout(() => {
+                createLongPressMagic(pos.x, pos.y);
+            }, 2000);
+        };
+
+        // 触摸结束
+        const touchEnd = (e) => {
+            clearTimeout(longPressTimer);
+            const pos = getPosition(e);
+            if(Math.abs(pos.x - lastX) < 10 && Math.abs(pos.y - lastY) < 10){
+                createClickMagic(pos.x, pos.y);
+            }
+        };
+
+        // 获取坐标
+        const getPosition = (e) => ({
+            x: e.clientX || e.touches[0].clientX,
+            y: e.clientY || e.touches[0].clientY
+        });
+
+        // 摇晃检测
+        let lastShake = 0;
+        window.addEventListener('devicemotion', (e) => {
+            if(!e.accelerationIncludingGravity) return;
+            
+            const {x, y, z} = e.accelerationIncludingGravity;
+            const acceleration = Math.abs(x) + Math.abs(y) + Math.abs(z);
+            
+            if(acceleration > SHAKE_THRESHOLD && Date.now() - lastShake > 2000){
+                createGalaxyMagic();
+                lastShake = Date.now();
+            }
+        });
+
+        // 初始化
+        window.onload = () => {
+            ['mousedown', 'touchstart'].forEach(evt => 
+                document.addEventListener(evt, touchStart));
+            ['mouseup', 'touchend'].forEach(evt => 
+                document.addEventListener(evt, touchEnd));
+        };
+
+        // 实用工具函数
+        const rand = (min, max) => Math.floor(Math.random()*(max-min+1))+min;
+    </script>
+</body>
+</html>
